@@ -15,7 +15,7 @@ console.log(new Date().toString(), 'Server started up')
 const server = http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' })
 
-  console.log(new Date().toString(), `New request: ${JSON.stringify(req)}`)
+  console.log(new Date().toString(), `New request: ${JSON.stringify(req.headers)}`)
 
   connection.query('select mydata from deleteme', (e, r, f) => {
     console.log('Database response', { e, r, f })
