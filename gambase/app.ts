@@ -1,11 +1,12 @@
 import mysql from 'mysql'
 import http from 'http'
+require('dotenv').config()
 
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'YYYY',
-  password: 'YYYY',
-  database: 'YYYY',
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 })
 
 connection.connect(err => console.log('connected: ' + connection.threadId + ' error: ' + err))
