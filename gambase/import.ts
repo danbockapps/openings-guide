@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { createConnection } from 'mysql'
 import { Game } from './types'
-import util from 'util'
+import { Chess } from 'chess.js'
 require('dotenv').config()
 
 const connection = createConnection({
@@ -15,9 +15,9 @@ connection.connect(err => console.log('connected: ' + connection.threadId + ' er
 
 const runImport = async () => {
   console.time('get')
-  const games = await getGames('DanBock', '2015', '01')
+  const games = await getGames('Hikaru', '2015', '02')
   console.timeEnd('get')
-  const result = await insertGames(games)
+  const result = await insertIntoDb('games', games)
   console.log(result)
   connection.end()
 }
@@ -27,33 +27,33 @@ const getGames = (username: string, year: string, month: string) =>
     .get<{ games: Game[] }>(`https://api.chess.com/pub/player/${username}/games/${year}/${month}`)
     .then(response =>
       response.data.games
-        .filter((_g, i) => i < 1)
+        .filter((_g, i) => i < 5)
         .map(g => {
           const { pgn, ...rest } = g
-          return [Number(g.url.split('/').pop()), pgn, JSON.stringify(rest)] as const
+          return { game_id: Number(g.url.split('/').pop()), pgn, raw_json: JSON.stringify(rest) }
         }),
     )
 
-const insertGames = (gamesForDb: (readonly [number, string, string])[]) =>
-  new Promise((resolve, reject) =>
+const insertIntoDb = (table: string, data: { [columnName: string]: string | number }[]) =>
+  new Promise((resolve, reject) => {
+    const keys = Object.keys(data[0])
+
     connection.query(
-      'insert ignore into games (game_id, pgn, raw_json) values ?',
-      [gamesForDb],
-      (error, result) => {
-        if (error) reject(error)
-        else resolve(result)
-      },
-    ),
-  )
-
-runImport()
-
+      `insert ignore into ${table} (${keys.join(',')}) values ?`,
+      [data.map(d => keys.map(k => d[k]))],
+      (error, result) => (error ? reject(error) : resolve(result)),
+    )
+  })
 /*
-    response.data.games
+const insertFens = async (gamesForDb: (readonly [number, string, string])[]) =>
+  new Promise((resolve, reject) => {
+    const allFens = []
+
+    gamesForDb
       .filter((_g, i) => i < 10)
       .forEach(g => {
         const originalGame = new Chess()
-        originalGame.load_pgn(g.pgn)
+        originalGame.load_pgn(g[1])
 
         const replay = new Chess()
         const fens: string[] = originalGame.history().map(move => {
@@ -62,4 +62,8 @@ runImport()
         })
 
         console.log(fens)
-      })*/
+      })
+  })
+  */
+
+runImport()
