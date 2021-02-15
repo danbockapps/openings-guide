@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { createConnection } from 'mysql'
 import { Game } from './types'
+import util from 'util'
 require('dotenv').config()
 
 const connection = createConnection({
@@ -12,26 +13,42 @@ const connection = createConnection({
 
 connection.connect(err => console.log('connected: ' + connection.threadId + ' error: ' + err))
 
-axios
-  .get<{ games: Game[] }>('https://api.chess.com/pub/player/DanBock/games/2015/01')
-  .then(response => {
-    const gamesforDb = response.data.games
-      .filter((_g, i) => i < 10)
-      .map(g => {
-        const { pgn, ...rest } = g
-        return [Number(g.url.split('/').pop()), pgn, JSON.stringify(rest)]
-      })
-    console.log(gamesforDb.map(g => g[0]))
+const runImport = async () => {
+  console.time('get')
+  const games = await getGames('DanBock', '2015', '01')
+  console.timeEnd('get')
+  const result = await insertGames(games)
+  console.log(result)
+  connection.end()
+}
 
-    connection.query(
-      'insert into games (game_id, pgn, raw_json) values ?',
-      [gamesforDb],
-      (error, result) => {
-        if (error) throw error
-        else console.log(result)
-      },
+const getGames = (username: string, year: string, month: string) =>
+  axios
+    .get<{ games: Game[] }>(`https://api.chess.com/pub/player/${username}/games/${year}/${month}`)
+    .then(response =>
+      response.data.games
+        .filter((_g, i) => i < 1)
+        .map(g => {
+          const { pgn, ...rest } = g
+          return [Number(g.url.split('/').pop()), pgn, JSON.stringify(rest)] as const
+        }),
     )
-    /*
+
+const insertGames = (gamesForDb: (readonly [number, string, string])[]) =>
+  new Promise((resolve, reject) =>
+    connection.query(
+      'insert ignore into games (game_id, pgn, raw_json) values ?',
+      [gamesForDb],
+      (error, result) => {
+        if (error) reject(error)
+        else resolve(result)
+      },
+    ),
+  )
+
+runImport()
+
+/*
     response.data.games
       .filter((_g, i) => i < 10)
       .forEach(g => {
@@ -46,6 +63,3 @@ axios
 
         console.log(fens)
       })*/
-
-    connection.end()
-  })
