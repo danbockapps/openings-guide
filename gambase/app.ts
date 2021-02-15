@@ -1,11 +1,11 @@
-import mysql from 'mysql'
 import http from 'http'
+import { createConnection } from 'mysql'
 require('dotenv').config()
 
-const connection = mysql.createConnection({
+const connection = createConnection({
   host: 'localhost',
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  user: process.env.DB_USER_READONLY,
+  password: process.env.DB_PASSWORD_READONLY,
   database: process.env.DB_NAME,
 })
 
