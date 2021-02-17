@@ -81,6 +81,7 @@ const insertFens = async (gamesForDb: GameForDb[]) => {
         fen: replay.fen(),
         move: move.san,
         move_number: Math.floor(i / 2) + 1,
+        ply: i + 1,
         color: move.color,
       }
     })
