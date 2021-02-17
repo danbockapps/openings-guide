@@ -5,7 +5,7 @@ create table games (
 );
 create table fens (
   fen_id bigint unsigned auto_increment primary key,
-  fen varchar(500)
+  fen varchar(500) unique
 );
 create table game_fen_bridge (
   id bigint unsigned auto_increment primary key,
@@ -13,6 +13,7 @@ create table game_fen_bridge (
   fen_id bigint unsigned,
   move varchar(6),
   move_number tinyint unsigned,
+  color enum('w', 'b'),
   constraint foreign key (game_id) references games (game_id),
   constraint foreign key (fen_id) references fens (fen_id)
 );

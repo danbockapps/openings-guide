@@ -29,3 +29,17 @@ export interface Game {
   tournament: string
   match: string
 }
+
+export type GameForDb = {
+  game_id: number
+  pgn: string
+  raw_json: string
+}
+
+export type BridgeForDb = {
+  game_id: number
+  fen_id: number
+  move: string
+  move_number: number
+  color: 'w' | 'b'
+}
