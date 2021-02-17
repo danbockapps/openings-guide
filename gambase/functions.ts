@@ -1,13 +1,14 @@
 import { Connection, escape } from 'mysql'
+import { NextMove } from './types'
 
-export function selectFromDb<T>(connection: Connection, query: string): Promise<[T]> {
+export function selectFromDb<T>(connection: Connection, query: string): Promise<T[]> {
   return new Promise((resolve, reject) =>
     connection.query(query, (error, result) => (error ? reject(error) : resolve(result))),
   )
 }
 
-export const getNextMoves = async (connection: Connection, fen: string, n: number) =>
-  await selectFromDb(
+export const getNextMoves = async (connection: Connection, fen: string, n: number) => {
+  const qr = await selectFromDb<NextMove>(
     connection,
     `
       select fen,
@@ -32,3 +33,6 @@ export const getNextMoves = async (connection: Connection, fen: string, n: numbe
       order by count(*) desc;
     `,
   )
+
+  return qr.map(nm => ({ move: nm.move, color: nm.color, count: nm.count }))
+}

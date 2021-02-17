@@ -43,3 +43,10 @@ export type BridgeForDb = {
   move_number: number
   color: 'w' | 'b'
 }
+
+export type NextMove = {
+  fen: string
+  move: string
+  color: 'w' | 'b'
+  count: number
+}
