@@ -2,6 +2,7 @@ import axios from 'axios'
 import { createConnection, escape, OkPacket } from 'mysql'
 import { BridgeForDb, Game, GameForDb } from './types'
 import { Chess } from 'chess.js'
+import { selectFromDb } from './functions'
 require('dotenv').config()
 
 const connection = createConnection({
@@ -50,14 +51,9 @@ const insertIntoDb = (
     )
   })
 
-function selectFromDb<T>(query: string): Promise<[T]> {
-  return new Promise((resolve, reject) =>
-    connection.query(query, (error, result) => (error ? reject(error) : resolve(result))),
-  )
-}
-
 const getFenId = async (fen: string) => {
   const existingFen = await selectFromDb<{ fen_id: number }>(
+    connection,
     `select fen_id from fens where fen=${escape(fen)}`,
   )
 

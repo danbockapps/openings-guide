@@ -1,5 +1,7 @@
 import http from 'http'
 import { createConnection } from 'mysql'
+import { parse } from 'querystring'
+import { getNextMoves } from './functions'
 require('dotenv').config()
 
 const connection = createConnection({
@@ -14,14 +16,19 @@ connection.connect(err => console.log('connected: ' + connection.threadId + ' er
 console.log(new Date().toString(), 'Server started up')
 
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' })
-
   console.log(new Date().toString(), `New request: ${req.url}`)
 
-  connection.query('select mydata from deleteme', (e, r, f) => {
-    console.log('Database response', { e, r, f })
-    res.end(JSON.stringify(r))
-  })
+  const { fen } = parse(req.url?.split('?')[1] || '')
+
+  if (typeof fen !== 'string') {
+    res.writeHead(400)
+    res.end()
+  } else {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    Promise.all([getNextMoves(connection, fen, 1), getNextMoves(connection, fen, 5)]).then(r =>
+      res.end(JSON.stringify({ next1: r[0], next5: r[1] })),
+    )
+  }
 })
 
 server.listen()
