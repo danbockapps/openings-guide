@@ -1,3 +1,4 @@
+import axios from 'axios'
 import * as ChessJS from 'chess.js'
 import Chessboard from 'chessboardjsx'
 import { FC, useState } from 'react'
@@ -18,6 +19,10 @@ const Board: FC = () => {
         chess.move({ from: sourceSquare, to: targetSquare })
         console.log(chess.fen())
         setHistory(chess.history())
+
+        axios
+          .get('https://danbock.net/gambase', { params: { fen: chess.fen() } })
+          .then(response => console.log(response.data))
       }}
     />
   )

@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(400)
     res.end()
   } else {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })
     Promise.all([getNextMoves(connection, fen, 1), getNextMoves(connection, fen, 5)]).then(r =>
       res.end(JSON.stringify({ next1: r[0], next5: r[1] })),
     )
