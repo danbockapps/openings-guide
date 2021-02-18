@@ -15,6 +15,11 @@ const Board: FC = () => {
   return (
     <Chessboard
       position={chess.fen()}
+      calcWidth={({ screenWidth, screenHeight }) => {
+        if (screenHeight > screenWidth) /* vertical orientation */ return screenWidth
+        else if (screenWidth - 300 < screenHeight) /* horiz but squarish */ return screenWidth - 300
+        else return screenHeight
+      }}
       onDrop={({ sourceSquare, targetSquare }) => {
         chess.move({ from: sourceSquare, to: targetSquare })
         console.log(chess.fen())
