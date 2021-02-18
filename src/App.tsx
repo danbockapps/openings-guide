@@ -1,16 +1,14 @@
 import './App.scss'
+import Board from './components/Board'
 
 function App() {
   return (
     <div className="App">
-      <div
-        style={{
-          background: 'blue',
-        }}
-      />
+      <Board />
       <div
         style={{
           background: 'yellow',
+          height: '100px',
         }}
       />
     </div>
