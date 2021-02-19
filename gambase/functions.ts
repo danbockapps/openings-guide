@@ -15,7 +15,7 @@ export const getNextMoves = async (connection: Connection, fen: string, n: numbe
       ? `
           select move, color, count(*) as count
           from game_fen_bridge
-          where move_number <= ${n}
+          where move_number <= ${n} ${n === 1 ? 'and color = "w"' : ''}
           group by move, color
           order by count(*) desc`
       : `

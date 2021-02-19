@@ -28,7 +28,7 @@ const App: FC = () => {
 
   return (
     <AppContext.Provider
-      value={{ totalGames: (nextMoves?.next1.reduce((acc, cur) => acc + cur.count, 0) || 2) / 2 }}
+      value={{ totalGames: nextMoves?.next1.reduce((acc, cur) => acc + cur.count, 0) || 1 }}
     >
       <div className="App">
         <div>
