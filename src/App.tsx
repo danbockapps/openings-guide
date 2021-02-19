@@ -44,7 +44,13 @@ const App: FC = () => {
           />
           <Goals nextMoves={nextMoves?.next5.filter(m => m.color === 'w')} />
         </div>
-        <MoveList nextMoves={nextMoves?.next1} />
+        <MoveList
+          nextMoves={nextMoves?.next1}
+          onMove={move => {
+            chess.move(move)
+            setHistory(chess.history())
+          }}
+        />
       </div>
     </AppContext.Provider>
   )

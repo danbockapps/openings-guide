@@ -3,6 +3,7 @@ import { NextMove } from '../types'
 
 interface Props {
   nextMoves?: NextMove[]
+  onMove: (move: string) => void
 }
 
 const MoveList: FC<Props> = props => {
@@ -17,6 +18,7 @@ const MoveList: FC<Props> = props => {
             className={hover === i ? 'hover' : undefined}
             onMouseOver={() => setHover(i)}
             onMouseOut={() => setHover(undefined)}
+            onClick={() => props.onMove(n.move)}
           >
             <td>{n.move}</td>
             <td>{n.count}</td>

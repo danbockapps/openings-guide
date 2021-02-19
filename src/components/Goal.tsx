@@ -16,7 +16,7 @@ const Goal: FC<Props> = props => (
         </AppContext.Consumer>
       </span>
       <br />
-      <span style={{ fontSize: 'smaller' }}>of games</span>
+      <span style={{ fontSize: 'smaller' }}>of&nbsp;games</span>
     </div>
   </div>
 )
