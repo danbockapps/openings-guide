@@ -4,6 +4,7 @@ import { createContext, FC, useEffect, useState } from 'react'
 import './App.scss'
 import Board from './components/Board'
 import Goals from './components/Goals'
+import MoveList from './components/MoveList'
 import { NextMoves } from './types'
 
 // https://stackoverflow.com/a/65243150/400765
@@ -42,12 +43,7 @@ const App: FC = () => {
           />
           <Goals nextMoves={nextMoves?.next5.filter(m => m.color === 'w')} />
         </div>
-        <div
-          style={{
-            background: 'yellow',
-            height: '100px',
-          }}
-        />
+        <MoveList nextMoves={nextMoves?.next1} />
       </div>
     </AppContext.Provider>
   )
