@@ -7,7 +7,7 @@ interface Props {
 }
 
 const Goals: FC<Props> = props => (
-  <div>{props.nextMoves?.map((k, i) => i < 6 && <Goal key={i} move={k.move} />)}</div>
+  <div className="goals">{props.nextMoves?.map((k, i) => i < 6 && <Goal key={i} move={k} />)}</div>
 )
 
 export default Goals

@@ -1,6 +1,47 @@
+$goal-gap: 5px;
+
 .App {
   @media (min-width: 700px) {
     display: grid;
     grid-template-columns: 1fr 300px;
   }
+
+  @media (max-width: 699px) {
+    .goals {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, auto);
+    }
+  }
+}
+
+.goals {
+  display: grid;
+  grid-auto-flow: column;
+  gap: $goal-gap;
+  margin: $goal-gap;
+  text-align: center;
+}
+
+.goal {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 5px;
+  height: 100px;
+
+  .move {
+    font-size: larger;
+    font-weight: bold;
+  }
+}
+
+.black-goal {
+  background-color: #3a3a3a;
+  color: white;
+  border: 2px solid black;
+}
+
+.white-goal {
+  background-color: #eee;
+  border: 2px solid #333;
 }
