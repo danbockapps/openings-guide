@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as ChessJS from 'chess.js'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import './App.scss'
 import Board from './components/Board'
 import Goals from './components/Goals'
@@ -15,22 +15,26 @@ const App: FC = () => {
 
   const chess = new Chess()
   history.forEach(move => chess.move(move))
+  const fen = chess.fen()
+
+  useEffect(() => {
+    axios
+      .get<NextMoves>('https://danbock.net/gambase', { params: { fen } })
+      .then(response => setNextMoves(response.data))
+  }, [fen])
 
   return (
     <div className="App">
       <div>
-        <Goals nextMoves={nextMoves?.next5} />
+        <Goals nextMoves={nextMoves?.next5.filter(m => m.color === 'b')} />
         <Board
           position={chess.fen()}
           onDrop={({ sourceSquare, targetSquare }) => {
             chess.move({ from: sourceSquare, to: targetSquare })
             setHistory(chess.history())
-
-            axios
-              .get<NextMoves>('https://danbock.net/gambase', { params: { fen: chess.fen() } })
-              .then(response => setNextMoves(response.data))
           }}
         />
+        <Goals nextMoves={nextMoves?.next5.filter(m => m.color === 'w')} />
       </div>
       <div
         style={{
