@@ -1,0 +1,16 @@
+.move-list {
+  padding: 8px;
+  border-spacing: 0;
+
+  tr {
+    cursor: pointer;
+  }
+
+  td {
+    padding: 6px;
+  }
+
+  .hover {
+    background-color: #ddd;
+  }
+}
