@@ -1,11 +1,10 @@
 import axios from 'axios'
 import * as ChessJS from 'chess.js'
 import { createContext, FC, useEffect, useState } from 'react'
-import './styles/App.scss'
-// import './styles/MoveList.scss'
 import Board from './components/Board'
 import Goals from './components/Goals'
 import MoveList from './components/MoveList'
+import './styles/App.scss'
 import { NextMoves } from './types'
 
 // https://stackoverflow.com/a/65243150/400765
