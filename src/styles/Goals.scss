@@ -1,0 +1,10 @@
+$goal-gap: 5px;
+
+.goals {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(6, 1fr);
+  gap: $goal-gap;
+  margin: $goal-gap;
+  text-align: center;
+}
