@@ -1,16 +1,41 @@
-import { Connection, escape, OkPacket } from 'mysql'
+import { createConnection, escape, OkPacket } from 'mysql'
 import { NextMove } from './types'
+require('dotenv').config()
+
+let environment: 'cli' | 'web'
+const {
+  SCRIPT_URI,
+  PASSENGER_APP_ENV,
+  SSH_CONNECTION,
+  SSH_CLIENT,
+  DB_USER,
+  DB_USER_READONLY,
+  DB_PASSWORD,
+  DB_PASSWORD_READONLY,
+  DB_NAME,
+} = process.env
+
+if (SCRIPT_URI && PASSENGER_APP_ENV && !SSH_CONNECTION && !SSH_CLIENT) environment = 'web'
+else if (!SCRIPT_URI && !PASSENGER_APP_ENV && SSH_CONNECTION && SSH_CLIENT) environment = 'cli'
+else throw new Error('Could not determine environment')
+
+const [user, password] =
+  environment === 'web' ? [DB_USER_READONLY, DB_PASSWORD_READONLY] : [DB_USER, DB_PASSWORD]
+
+const connection = createConnection({ host: 'localhost', user, password, database: DB_NAME })
+connection.connect(err => console.log('connected: ' + connection.threadId + ' error: ' + err))
+
+export const end = () => connection.end()
 
 const START_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
-export function selectFromDb<T>(connection: Connection, query: string): Promise<T[]> {
+export function selectFromDb<T>(query: string): Promise<T[]> {
   return new Promise((resolve, reject) =>
     connection.query(query, (error, result) => (error ? reject(error) : resolve(result))),
   )
 }
 
 export const insertIntoDb = <T = { [columnName: string]: string | number | undefined }>(
-  connection: Connection,
   table: string,
   data: T[],
   ignore?: boolean,
@@ -25,7 +50,7 @@ export const insertIntoDb = <T = { [columnName: string]: string | number | undef
     )
   })
 
-export const getNextMoves = async (connection: Connection, fen: string, n: number) => {
+export const getNextMoves = async (fen: string, n: number) => {
   const query =
     fen === START_POSITION
       ? `
@@ -47,7 +72,7 @@ export const getNextMoves = async (connection: Connection, fen: string, n: numbe
           group by fen, move, color
           order by count(*) desc`
 
-  const qr = await selectFromDb<NextMove>(connection, query)
+  const qr = await selectFromDb<NextMove>(query)
 
   return qr.map(nm => ({ move: nm.move, color: nm.color, count: nm.count }))
 }

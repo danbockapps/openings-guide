@@ -1,29 +1,19 @@
 import axios from 'axios'
 import { Chess } from 'chess.js'
-import { createConnection, escape } from 'mysql'
-import { insertIntoDb, selectFromDb } from './functions'
+import { escape } from 'mysql'
+import { end, insertIntoDb, selectFromDb } from './functions'
 import { BridgeForDb, Game, GameForDb } from './types'
-require('dotenv').config()
-
-const connection = createConnection({
-  host: 'localhost',
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-})
-
-connection.connect(err => console.log('connected: ' + connection.threadId + ' error: ' + err))
 
 const runImport = async () => {
   console.time('get')
   const games = await getGames('Hikaru', '2014', '01')
   console.timeEnd('get')
-  const result = await insertIntoDb(connection, 'games', games, true)
+  const result = await insertIntoDb('games', games, true)
   console.log(result)
 
   await insertFens(games)
 
-  connection.end()
+  end()
 }
 
 const getGames = (username: string, year: string, month: string): Promise<GameForDb[]> =>
@@ -38,13 +28,12 @@ const getGames = (username: string, year: string, month: string): Promise<GameFo
 
 const getFenId = async (fen: string) => {
   const existingFen = await selectFromDb<{ fen_id: number }>(
-    connection,
     `select fen_id from fens where fen=${escape(fen)}`,
   )
 
   if (existingFen[0]?.fen_id) return existingFen[0].fen_id
   else {
-    const packet = await insertIntoDb(connection, 'fens', [{ fen }], true)
+    const packet = await insertIntoDb('fens', [{ fen }], true)
     return packet.insertId
   }
 }
@@ -75,7 +64,7 @@ const insertFens = async (gamesForDb: GameForDb[]) => {
       bridgeData.push({ fen_id, ...rest })
     }
 
-    const result = await insertIntoDb(connection, 'game_fen_bridge', bridgeData)
+    const result = await insertIntoDb('game_fen_bridge', bridgeData)
     console.log(`Result for game ${g.game_id}: ${JSON.stringify(result)}`)
   }
 }
