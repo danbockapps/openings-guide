@@ -5,8 +5,14 @@ import { end, insertIntoDb, selectFromDb } from './functions'
 import { BridgeForDb, Game, GameForDb } from './types'
 
 const runImport = async () => {
+  console.time('db')
+  const downloadables = await selectFromDb<{ url: string }>(
+    'select url from downloadables where added is null',
+  )
+  console.timeEnd('db')
+
   console.time('get')
-  const games = await getGames('Hikaru', '2014', '01')
+  const games = await getGames(downloadables[Math.floor(Math.random() * downloadables.length)].url)
   console.timeEnd('get')
   const result = await insertIntoDb('games', games, true)
   console.log(result)
@@ -16,15 +22,13 @@ const runImport = async () => {
   end()
 }
 
-const getGames = (username: string, year: string, month: string): Promise<GameForDb[]> =>
-  axios
-    .get<{ games: Game[] }>(`https://api.chess.com/pub/player/${username}/games/${year}/${month}`)
-    .then(response =>
-      response.data.games.map(g => {
-        const { pgn, ...rest } = g
-        return { game_id: Number(g.url.split('/').pop()), pgn, raw_json: JSON.stringify(rest) }
-      }),
-    )
+const getGames = (url: string): Promise<GameForDb[]> =>
+  axios.get<{ games: Game[] }>(url).then(response =>
+    response.data.games.map(g => {
+      const { pgn, ...rest } = g
+      return { game_id: Number(g.url.split('/').pop()), pgn, raw_json: JSON.stringify(rest) }
+    }),
+  )
 
 const getFenId = async (fen: string) => {
   const existingFen = await selectFromDb<{ fen_id: number }>(
