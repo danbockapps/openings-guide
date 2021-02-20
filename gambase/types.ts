@@ -50,3 +50,19 @@ export type NextMove = {
   color: 'w' | 'b'
   count: number
 }
+
+type Source = 'chess.com'
+
+export type Player = {
+  source: Source
+  player_id: number
+  username: string
+  title?: 'GM' | 'IM' | 'FM' | 'NM' | 'WGM' | 'WIM' | 'WFM'
+}
+
+export type Leaderboards = {
+  daily: Player[]
+  live_rapid: Player[]
+  live_blitz: Player[]
+  live_bullet: Player[]
+}

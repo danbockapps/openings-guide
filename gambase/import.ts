@@ -1,8 +1,8 @@
 import axios from 'axios'
-import { createConnection, escape, OkPacket } from 'mysql'
-import { BridgeForDb, Game, GameForDb } from './types'
 import { Chess } from 'chess.js'
-import { selectFromDb } from './functions'
+import { createConnection, escape } from 'mysql'
+import { insertIntoDb, selectFromDb } from './functions'
+import { BridgeForDb, Game, GameForDb } from './types'
 require('dotenv').config()
 
 const connection = createConnection({
@@ -18,7 +18,7 @@ const runImport = async () => {
   console.time('get')
   const games = await getGames('Hikaru', '2014', '01')
   console.timeEnd('get')
-  const result = await insertIntoDb('games', games, true)
+  const result = await insertIntoDb(connection, 'games', games, true)
   console.log(result)
 
   await insertFens(games)
@@ -36,21 +36,6 @@ const getGames = (username: string, year: string, month: string): Promise<GameFo
       }),
     )
 
-const insertIntoDb = (
-  table: string,
-  data: { [columnName: string]: string | number }[],
-  ignore?: boolean,
-): Promise<OkPacket> =>
-  new Promise((resolve, reject) => {
-    const keys = Object.keys(data[0])
-
-    connection.query(
-      `insert ${ignore ? 'ignore' : ''} into ${table} (${keys.join(',')}) values ?`,
-      [data.map(d => keys.map(k => d[k]))],
-      (error, result) => (error ? reject(error) : resolve(result)),
-    )
-  })
-
 const getFenId = async (fen: string) => {
   const existingFen = await selectFromDb<{ fen_id: number }>(
     connection,
@@ -59,7 +44,7 @@ const getFenId = async (fen: string) => {
 
   if (existingFen[0]?.fen_id) return existingFen[0].fen_id
   else {
-    const packet = await insertIntoDb('fens', [{ fen }], true)
+    const packet = await insertIntoDb(connection, 'fens', [{ fen }], true)
     return packet.insertId
   }
 }
@@ -90,7 +75,7 @@ const insertFens = async (gamesForDb: GameForDb[]) => {
       bridgeData.push({ fen_id, ...rest })
     }
 
-    const result = await insertIntoDb('game_fen_bridge', bridgeData)
+    const result = await insertIntoDb(connection, 'game_fen_bridge', bridgeData)
     console.log(`Result for game ${g.game_id}: ${JSON.stringify(result)}`)
   }
 }

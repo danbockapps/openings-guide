@@ -1,4 +1,4 @@
-import { Connection, escape } from 'mysql'
+import { Connection, escape, OkPacket } from 'mysql'
 import { NextMove } from './types'
 
 const START_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
@@ -8,6 +8,22 @@ export function selectFromDb<T>(connection: Connection, query: string): Promise<
     connection.query(query, (error, result) => (error ? reject(error) : resolve(result))),
   )
 }
+
+export const insertIntoDb = <T = { [columnName: string]: string | number | undefined }>(
+  connection: Connection,
+  table: string,
+  data: T[],
+  ignore?: boolean,
+): Promise<OkPacket> =>
+  new Promise((resolve, reject) => {
+    const keys = Object.keys(data[0]) as (keyof T)[]
+
+    connection.query(
+      `insert ${ignore ? 'ignore' : ''} into ${table} (${keys.join(',')}) values ?`,
+      [data.map(d => keys.map(k => d[k]))],
+      (error, result) => (error ? reject(error) : resolve(result)),
+    )
+  })
 
 export const getNextMoves = async (connection: Connection, fen: string, n: number) => {
   const query =
