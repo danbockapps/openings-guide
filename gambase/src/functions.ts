@@ -26,6 +26,10 @@ const connection = createConnection({ host: 'localhost', user, password, databas
 connection.connect(err => console.log('connected: ' + connection.threadId + ' error: ' + err))
 
 export const end = () => connection.end()
+export const logAndEnd = (response: OkPacket) => {
+  console.log(response)
+  connection.end()
+}
 
 const START_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 

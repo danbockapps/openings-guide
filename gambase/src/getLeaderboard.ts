@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { end, insertIntoDb } from './functions'
+import { insertIntoDb, logAndEnd } from './functions'
 import { Leaderboards, Player } from './types'
 
 axios
@@ -18,7 +18,4 @@ axios
       true,
     ),
   )
-  .then(response => {
-    console.log(response)
-    end()
-  })
+  .then(logAndEnd)

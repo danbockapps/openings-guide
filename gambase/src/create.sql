@@ -38,6 +38,12 @@ create table players (
   unique(source, username)
 );
 
+create table downloadables (
+  id bigint unsigned auto_increment primary key,
+  url varchar(200) not null unique,
+  added datetime
+);
+
 -- Utility for finding most popular fens
 select
   fen,
