@@ -11,23 +11,28 @@ const runImport = async () => {
   )
   console.timeEnd('db')
 
+  const { url } = downloadables[Math.floor(Math.random() * downloadables.length)]
+
   console.time('get')
-  const games = await getGames(downloadables[Math.floor(Math.random() * downloadables.length)].url)
+  const games = await getGames(url)
   console.timeEnd('get')
   const result = await insertIntoDb('games', games, true)
   console.log(result)
 
   await insertFens(games)
+  await selectFromDb('update downloadables set added = now() where url = ' + escape(url))
 
   end()
 }
 
 const getGames = (url: string): Promise<GameForDb[]> =>
   axios.get<{ games: Game[] }>(url).then(response =>
-    response.data.games.map(g => {
-      const { pgn, ...rest } = g
-      return { game_id: Number(g.url.split('/').pop()), pgn, raw_json: JSON.stringify(rest) }
-    }),
+    response.data.games
+      .filter(g => g.rules === 'chess')
+      .map(g => {
+        const { pgn, ...rest } = g
+        return { game_id: Number(g.url.split('/').pop()), pgn, raw_json: JSON.stringify(rest) }
+      }),
   )
 
 const getFenId = async (fen: string) => {
