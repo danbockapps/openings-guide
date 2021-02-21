@@ -3,10 +3,8 @@
 @import 'Goals.scss';
 
 .App {
-  @media (min-width: 700px) {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-  }
+  display: flex;
+  flex-wrap: wrap;
 
   @media (max-width: 699px) {
     .goals {

@@ -11,11 +11,7 @@ const Board: FC<Props> = props => {
   return (
     <Chessboard
       position={props.position}
-      calcWidth={({ screenWidth, screenHeight }) => {
-        if (screenHeight > screenWidth) /* vertical orientation */ return screenWidth
-        else if (screenWidth - 300 < screenHeight) /* horiz but squarish */ return screenWidth - 300
-        else return screenHeight
-      }}
+      calcWidth={d => (d.screenHeight - 178 > d.screenWidth ? d.screenWidth : d.screenHeight - 178)}
       onDrop={props.onDrop}
     />
   )
