@@ -4,3 +4,4 @@ build
 .env
 upload.sh
 restart.sh
+import.sh

@@ -15,9 +15,10 @@ const {
   DB_NAME,
 } = process.env
 
+console.log('process.title', process.title)
+
 if (SCRIPT_URI && PASSENGER_APP_ENV && !SSH_CONNECTION && !SSH_CLIENT) environment = 'web'
-else if (!SCRIPT_URI && !PASSENGER_APP_ENV && SSH_CONNECTION && SSH_CLIENT) environment = 'cli'
-else throw new Error('Could not determine environment')
+else environment = 'cli'
 
 const [user, password] =
   environment === 'web' ? [DB_USER_READONLY, DB_PASSWORD_READONLY] : [DB_USER, DB_PASSWORD]
