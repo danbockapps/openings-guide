@@ -18,7 +18,8 @@ const App: FC = () => {
 
   const chess = new Chess()
   history.forEach(move => chess.move(move))
-  const fen = chess.fen()
+  const split = chess.fen().split(' ')
+  const fen = split.filter((_k, i) => i < split.length - 3).join(' ')
 
   useEffect(() => {
     // TODO error handling

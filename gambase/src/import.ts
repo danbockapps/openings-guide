@@ -72,9 +72,13 @@ const insertFens = async (gamesForDb: GameForDb[]) => {
     const replay = new Chess()
     const fens = originalGame.history({ verbose: true }).map((move, i) => {
       replay.move(move.san)
+
+      const split = replay.fen().split(' ')
+      const fen = split.filter((_k, i) => i < split.length - 3).join(' ')
+
       return {
         game_id: g.game_id,
-        fen: replay.fen(),
+        fen,
         move: move.san,
         move_number: Math.floor(i / 2) + 1,
         ply: i + 1,

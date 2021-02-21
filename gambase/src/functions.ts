@@ -32,7 +32,7 @@ export const logAndEnd = (response: OkPacket) => {
   connection.end()
 }
 
-const START_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const START_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq'
 
 export function selectFromDb<T>(query: string): Promise<T[]> {
   return new Promise((resolve, reject) =>
