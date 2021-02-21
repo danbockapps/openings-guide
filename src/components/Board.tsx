@@ -7,14 +7,13 @@ interface Props {
   onDrop: (obj: { sourceSquare: Square; targetSquare: Square }) => void
 }
 
-const Board: FC<Props> = props => {
-  return (
-    <Chessboard
-      position={props.position}
-      calcWidth={d => (d.screenHeight - 178 > d.screenWidth ? d.screenWidth : d.screenHeight - 178)}
-      onDrop={props.onDrop}
-    />
-  )
-}
+const Board: FC<Props> = props => (
+  <Chessboard
+    key={Math.random() /* Hack to make back button work. Breaks animation though. */}
+    position={props.position}
+    calcWidth={d => (d.screenHeight - 178 > d.screenWidth ? d.screenWidth : d.screenHeight - 178)}
+    onDrop={props.onDrop}
+  />
+)
 
 export default Board

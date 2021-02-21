@@ -45,10 +45,9 @@ const App: FC = () => {
         </div>
         <MoveList
           nextMoves={nextMoves?.next1}
-          onMove={move => {
-            chess.move(move)
-            setHistory(chess.history())
-          }}
+          onMove={move => setHistory(history.concat(move))}
+          onBack={() => setHistory(history.filter((_m, i) => i < history.length - 1))}
+          onReset={() => setHistory([])}
         />
       </div>
     </AppContext.Provider>
