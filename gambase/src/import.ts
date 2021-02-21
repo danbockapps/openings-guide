@@ -7,11 +7,14 @@ import { BridgeForDb, Game, GameForDb } from './types'
 const runImport = async () => {
   console.time('db')
   const downloadables = await selectFromDb<{ url: string }>(
-    'select url from downloadables where added is null',
+    'select url from downloadables where added_start is null and added_end is null',
   )
   console.timeEnd('db')
 
   const { url } = downloadables[Math.floor(Math.random() * downloadables.length)]
+  console.log('Importing games from ' + url)
+
+  await selectFromDb('update downloadables set added_start=now() where url = ' + escape(url))
 
   console.time('get')
   const games = await getGames(url)
@@ -20,7 +23,7 @@ const runImport = async () => {
   console.log(result)
 
   await insertFens(games)
-  await selectFromDb('update downloadables set added = now() where url = ' + escape(url))
+  await selectFromDb('update downloadables set added_end = now() where url = ' + escape(url))
 
   end()
 }
@@ -31,7 +34,16 @@ const getGames = (url: string): Promise<GameForDb[]> =>
       .filter(g => g.rules === 'chess')
       .map(g => {
         const { pgn, ...rest } = g
-        return { game_id: Number(g.url.split('/').pop()), pgn, raw_json: JSON.stringify(rest) }
+        return {
+          game_id: Number(g.url.split('/').pop()),
+          pgn,
+          white_username: g.white.username,
+          white_rating: g.white.rating,
+          black_username: g.black.username,
+          black_rating: g.black.rating,
+          result: pgn.slice(pgn.lastIndexOf(' ') + 1),
+          raw_json: JSON.stringify(rest),
+        }
       }),
   )
 
@@ -49,6 +61,7 @@ const getFenId = async (fen: string) => {
 
 const insertFens = async (gamesForDb: GameForDb[]) => {
   for (const g of gamesForDb) {
+    console.log(`Starting game   ${g.game_id}`)
     const originalGame = new Chess()
     originalGame.load_pgn(g.pgn)
 
@@ -65,16 +78,18 @@ const insertFens = async (gamesForDb: GameForDb[]) => {
       }
     })
 
-    const bridgeData: BridgeForDb[] = []
+    if (fens.length > 0) {
+      const bridgeData: BridgeForDb[] = []
 
-    for (const fenObj of fens) {
-      const { fen, ...rest } = fenObj
-      const fen_id = await getFenId(fen)
-      bridgeData.push({ fen_id, ...rest })
-    }
+      for (const fenObj of fens) {
+        const { fen, ...rest } = fenObj
+        const fen_id = await getFenId(fen)
+        bridgeData.push({ fen_id, ...rest })
+      }
 
-    const result = await insertIntoDb('game_fen_bridge', bridgeData)
-    console.log(`Result for game ${g.game_id}: ${JSON.stringify(result)}`)
+      const result = await insertIntoDb('game_fen_bridge', bridgeData)
+      console.log(`Result for game ${g.game_id}: ${JSON.stringify(result)}`)
+    } else console.log('Number of moves is 0.')
   }
 }
 

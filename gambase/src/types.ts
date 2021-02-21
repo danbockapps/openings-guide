@@ -33,6 +33,11 @@ export interface Game {
 export type GameForDb = {
   game_id: number
   pgn: string
+  white_username: string
+  white_rating: number
+  black_username: string
+  black_rating: number
+  result: string
   raw_json: string
 }
 

@@ -1,6 +1,11 @@
 create table games (
   game_id bigint unsigned primary key,
   pgn text,
+  white_username varchar(50),
+  white_rating int,
+  black_username varchar(50),
+  black_rating int,
+  result varchar(20),
   raw_json text
 );
 
@@ -18,7 +23,9 @@ create table game_fen_bridge (
   ply tinyint unsigned,
   color enum('w', 'b'),
   constraint foreign key (game_id) references games (game_id),
-  constraint foreign key (fen_id) references fens (fen_id)
+  constraint foreign key (fen_id) references fens (fen_id),
+  unique(game_id, fen_id, ply),
+  unique(game_id, fen_id, move_number)
 );
 
 create table players (
@@ -41,7 +48,8 @@ create table players (
 create table downloadables (
   id bigint unsigned auto_increment primary key,
   url varchar(200) not null unique,
-  added datetime
+  added_start datetime,
+  added_end datetime
 );
 
 -- Utility for finding most popular fens
