@@ -6,15 +6,19 @@ import { BridgeForDb, Game, GameForDb } from './types'
 
 const runImport = async () => {
   console.time('db')
-  const downloadables = await selectFromDb<{ url: string }>(
-    'select url from downloadables where added_start is null and added_end is null',
-  )
+  const downloadables = await selectFromDb<{ url: string }>(`
+    select url
+    from downloadables
+    where
+      added_start is null and
+      added_end is null and
+      url not like "%${new Date().getFullYear()}/${`0${new Date().getMonth() + 1}`.slice(-2)}%"`)
   console.timeEnd('db')
 
   const { url } = downloadables[Math.floor(Math.random() * downloadables.length)]
   console.log('Importing games from ' + url)
 
-  await selectFromDb('update downloadables set added_start=now() where url = ' + escape(url))
+  await selectFromDb('update downloadables set added_start = now() where url = ' + escape(url))
 
   console.time('get')
   const games = await getGames(url)

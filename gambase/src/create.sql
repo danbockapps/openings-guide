@@ -25,7 +25,7 @@ create table game_fen_bridge (
   constraint foreign key (game_id) references games (game_id),
   constraint foreign key (fen_id) references fens (fen_id),
   unique(game_id, fen_id, ply),
-  unique(game_id, fen_id, move_number)
+  unique(game_id, fen_id, move_number, color)
 );
 
 create table players (
