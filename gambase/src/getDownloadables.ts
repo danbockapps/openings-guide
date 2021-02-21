@@ -9,20 +9,22 @@ const run = async () => {
     order by rand()
     limit 1`)
 
-  console.log(`Getting downloadables for ${randomPlayer[0].username}`)
+  if (randomPlayer[0]?.username) {
+    console.log(`Getting downloadables for ${randomPlayer[0].username}`)
 
-  await axios
-    .get<{ archives: string[] }>(
-      `https://api.chess.com/pub/player/${randomPlayer[0].username}/games/archives`,
-    )
-    .then(response =>
-      insertIntoDb<{ url: string }>(
-        'downloadables',
-        response.data.archives.map(url => ({ url })),
-        true,
-      ),
-    )
-    .then(logAndEnd)
+    await axios
+      .get<{ archives: string[] }>(
+        `https://api.chess.com/pub/player/${randomPlayer[0].username}/games/archives`,
+      )
+      .then(response =>
+        insertIntoDb<{ url: string }>(
+          'downloadables',
+          response.data.archives.map(url => ({ url })),
+          true,
+        ),
+      )
+      .then(logAndEnd)
+  }
 }
 
 run()
