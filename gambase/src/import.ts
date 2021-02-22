@@ -29,6 +29,13 @@ const runImport = async () => {
   await insertFens(games)
   await selectFromDb('update downloadables set added_end = now() where url = ' + escape(url))
 
+  const playersResult = await insertIntoDb(
+    'players',
+    getPlayerNames(games).map(p => ({ source: 'chess.com', username: p })),
+    true,
+  )
+  console.log('Inserted into players: ' + JSON.stringify(playersResult))
+
   end()
 
   console.log('Done importing games from ' + url)
@@ -52,6 +59,9 @@ const getGames = (url: string): Promise<GameForDb[]> =>
         }
       }),
   )
+
+const getPlayerNames = (games: GameForDb[]) =>
+  Array.from(new Set(games.map(g => g.black_username).concat(games.map(g => g.white_username))))
 
 const getFenId = async (fen: string) => {
   const existingFen = await selectFromDb<{ fen_id: number }>(
