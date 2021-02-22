@@ -1,4 +1,5 @@
-import { FC, useState } from 'react'
+import axios from 'axios'
+import { FC, useEffect, useState } from 'react'
 import { NextMove } from '../types'
 
 interface Props {
@@ -10,9 +11,15 @@ interface Props {
 
 const MoveList: FC<Props> = props => {
   const [hover, setHover] = useState<number>()
+  const [totalGames, setTotalGames] = useState<number>()
+
+  useEffect(() => {
+    axios.get<number>('https://danbock.net/gambase?totalGames').then(r => setTotalGames(r.data))
+  }, [])
 
   return (
     <div>
+      {totalGames ? totalGames + ' total master games ' : ' '}
       <button onClick={props.onBack}>back</button>
       <button onClick={props.onReset}>reset</button>
       <table className="move-list">

@@ -85,3 +85,8 @@ export const getNextMoves = async (fen: string, n: number) => {
 
   return qr.map(nm => ({ move: nm.move, color: nm.color, count: nm.count }))
 }
+
+export const getTotalGames = () =>
+  selectFromDb<{ count: number }>(
+    'select count(*) as count from games where white_rating >= 2200 and black_rating >= 2200',
+  )
