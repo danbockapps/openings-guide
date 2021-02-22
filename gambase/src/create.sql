@@ -52,6 +52,19 @@ create table downloadables (
   added_end datetime
 );
 
+create
+or replace view bridge_masters_only as
+select
+  b.*
+from
+  game_fen_bridge b
+  inner join games g using(game_id)
+where
+  g.white_rating >= 2200
+  and g.black_rating >= 2200;
+
+create index white_rating on games (white_rating);
+
 -- Utility for finding most popular fens
 select
   fen,
@@ -65,3 +78,10 @@ order by
   count(*) desc
 limit
   25;
+
+--Utility for finding players who have games in downloadables
+select
+  distinct p.*
+from
+  players p
+  inner join downloadables d on d.url like concat("%", p.username, "%");

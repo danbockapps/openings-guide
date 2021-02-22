@@ -60,7 +60,7 @@ export const getNextMoves = async (fen: string, n: number) => {
     fen === START_POSITION
       ? `
           select move, color, count(*) as count
-          from game_fen_bridge
+          from bridge_masters_only
           where move_number <= ${n} ${n === 1 ? 'and color = "w"' : ''}
           group by move, color
           order by count(*) desc`
@@ -68,16 +68,18 @@ export const getNextMoves = async (fen: string, n: number) => {
           select fen, move, color, count(*) as count
           from (
             select f.fen, b2.move_number, b2.move, b2.color
-            from game_fen_bridge b1
+            from bridge_masters_only b1
               inner join fens f on b1.fen_id = f.fen_id
-              inner join game_fen_bridge b2 on b1.game_id = b2.game_id
+              inner join bridge_masters_only b2 on b1.game_id = b2.game_id
             where b2.ply > b1.ply and b2.ply < b1.ply + ${n * 2}
           ) d1
           where fen = ${escape(fen)}
           group by fen, move, color
           order by count(*) desc`
 
+  console.time(`query ${n}`)
   const qr = await selectFromDb<NextMove>(query)
+  console.timeEnd(`query ${n}`)
 
   return qr.map(nm => ({ move: nm.move, color: nm.color, count: nm.count }))
 }

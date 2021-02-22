@@ -30,6 +30,8 @@ const runImport = async () => {
   await selectFromDb('update downloadables set added_end = now() where url = ' + escape(url))
 
   end()
+
+  console.log('Done importing games from ' + url)
 }
 
 const getGames = (url: string): Promise<GameForDb[]> =>
