@@ -27,7 +27,7 @@ const connection = createConnection({ host: 'localhost', user, password, databas
 connection.connect(err => console.log('connected: ' + connection.threadId + ' error: ' + err))
 
 export const end = () => connection.end()
-export const logAndEnd = (response: OkPacket) => {
+export const logAndEnd = (response: OkPacket | void) => {
   console.log(response)
   connection.end()
 }
@@ -44,15 +44,17 @@ export const insertIntoDb = <T = { [columnName: string]: string | number | undef
   table: string,
   data: T[],
   ignore?: boolean,
-): Promise<OkPacket> =>
+): Promise<OkPacket | void> =>
   new Promise((resolve, reject) => {
-    const keys = Object.keys(data[0]) as (keyof T)[]
+    if (data.length > 0) {
+      const keys = Object.keys(data[0]) as (keyof T)[]
 
-    connection.query(
-      `insert ${ignore ? 'ignore' : ''} into ${table} (${keys.join(',')}) values ?`,
-      [data.map(d => keys.map(k => d[k]))],
-      (error, result) => (error ? reject(error) : resolve(result)),
-    )
+      connection.query(
+        `insert ${ignore ? 'ignore' : ''} into ${table} (${keys.join(',')}) values ?`,
+        [data.map(d => keys.map(k => d[k]))],
+        (error, result) => (error ? reject(error) : resolve(result)),
+      )
+    } else resolve()
   })
 
 export const getNextMoves = async (fen: string, n: number) => {

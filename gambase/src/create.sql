@@ -30,7 +30,7 @@ create table game_fen_bridge (
 
 create table players (
   source enum('chess.com') not null,
-  player_id bigint unsigned not null,
+  player_id bigint unsigned,
   username varchar(50) not null,
   title enum(
     'GM',

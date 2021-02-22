@@ -61,7 +61,14 @@ const getGames = (url: string): Promise<GameForDb[]> =>
   )
 
 const getPlayerNames = (games: GameForDb[]) =>
-  Array.from(new Set(games.map(g => g.black_username).concat(games.map(g => g.white_username))))
+  Array.from(
+    new Set(
+      games
+        .filter(g => g.black_rating >= 2200)
+        .map(g => g.black_username)
+        .concat(games.filter(g => g.white_rating >= 2200).map(g => g.white_username)),
+    ),
+  )
 
 const getFenId = async (fen: string) => {
   const existingFen = await selectFromDb<{ fen_id: number }>(
@@ -71,6 +78,7 @@ const getFenId = async (fen: string) => {
   if (existingFen[0]?.fen_id) return existingFen[0].fen_id
   else {
     const packet = await insertIntoDb('fens', [{ fen }], true)
+    if (typeof packet !== 'object') throw 'Bad packed from inserting fen"'
     return packet.insertId
   }
 }
@@ -107,7 +115,7 @@ const insertFens = async (gamesForDb: GameForDb[]) => {
         bridgeData.push({ fen_id, ...rest })
       }
 
-      const result = await insertIntoDb('game_fen_bridge', bridgeData)
+      const result = await insertIntoDb('game_fen_bridge', bridgeData, true)
       console.log(`Result for game ${g.game_id}: ${JSON.stringify(result)}`)
     } else console.log('Number of moves is 0.')
   }
